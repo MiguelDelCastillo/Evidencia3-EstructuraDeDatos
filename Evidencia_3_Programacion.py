@@ -43,8 +43,7 @@ while True:
     print("2) Busqueda especifica de una venta")
     print("3) Guardar datos a CSV")
     print("4) Busqueda por fecha")
-    print("5) Guardar datos a SQL")
-    print("6) Salir")
+    print("5) Salir")
     print("\nPuede ingresar la opcion mediante \nel teclado numerico")
     respuesta = int(input("Elija una opción: "))
     
@@ -129,35 +128,11 @@ while True:
         print(f"Total de las ventas: {total_ventas}")
         print(f"El iva aplicable es de: {total_ventas * .16}")
         print(f"El total con iva aplicado es de: {round(total_ventas*1.16, 2)}")
+
     elif respuesta == 5:
-        # Cargado de datos a sqlite3
-        try:
-            with sqlite3.connect("Evidencia3.db") as conn:
-                mi_cursor = conn.cursor()
-                for folio in diccionario_ventas:
-                    cFolio = True
-                    for items in diccionario_ventas[folio]:
-                        if cFolio:
-                            mi_cursor.execute(f"SELECT * FROM FechaID WHERE EXISTS (SELECT * FROM FechaID WHERE {folio} = folio)")
-                            registro1 = mi_cursor.fetchall()
-                            if registro1:
-                                print(f"Dato con el folio: {folio}, ya existe")
-                                break
-                            else:
-                                mi_cursor.execute(f"INSERT INTO FechaID VALUES({folio}, '{items.fecha}');")
-                            cFolio = False
-                        mi_cursor.execute(f"INSERT INTO Venta VALUES({folio},'{items.descripcion}',{items.cantidad_pzas},{items.precio_venta});")
-                    
-        except Error as e:
-            print(e)
-        except Exception:
-            print(f"Error: {sys.exc_info()[0]}")
-        finally:
-            if conn:
-                conn.close()
-    elif respuesta == 6:
         print("Finalizando")
         break
+    
     
     elif respuesta == 7:
     # Opcion oculta al usuario, borrado de datos de la tabla
@@ -173,3 +148,27 @@ while True:
         finally:
             if conn:
                 conn.close()
+# Cargado de datos a sqlite3
+try:
+    with sqlite3.connect("Evidencia3.db") as conn:
+        mi_cursor = conn.cursor()
+        for folio in diccionario_ventas:
+            cFolio = True
+            for items in diccionario_ventas[folio]:
+                if cFolio:
+                    mi_cursor.execute(f"SELECT * FROM FechaID WHERE EXISTS (SELECT * FROM FechaID WHERE {folio} = folio)")
+                    registro1 = mi_cursor.fetchall()
+                    if registro1:
+                        print(f"Dato con el folio: {folio}, ya existe")
+                        break
+                    else:
+                        mi_cursor.execute(f"INSERT INTO FechaID VALUES({folio}, '{items.fecha}');")
+                    cFolio = False
+                mi_cursor.execute(f"INSERT INTO Venta VALUES({folio},'{items.descripcion}',{items.cantidad_pzas},{items.precio_venta});")
+except Error as e:
+    print(e)
+except Exception:
+    print(f"Error: {sys.exc_info()[0]}")
+finally:
+    if conn:
+        conn.close()
