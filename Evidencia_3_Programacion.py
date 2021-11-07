@@ -156,15 +156,15 @@ try:
             cFolio = True
             for items in diccionario_ventas[folio]:
                 if cFolio:
-                    mi_cursor.execute(f"SELECT * FROM FechaID WHERE EXISTS (SELECT * FROM FechaID WHERE {folio} = folio)")
+                    mi_cursor.execute(f"SELECT * FROM FechaID WHERE folio = ?",(folio,))
                     registro1 = mi_cursor.fetchall()
                     if registro1:
                         print(f"Dato con el folio: {folio}, ya existe")
                         break
                     else:
-                        mi_cursor.execute(f"INSERT INTO FechaID VALUES({folio}, '{items.fecha}');")
+                        mi_cursor.execute(f"INSERT INTO FechaID VALUES(?, ?);",(folio, items.fecha))
                     cFolio = False
-                mi_cursor.execute(f"INSERT INTO Venta VALUES({folio},'{items.descripcion}',{items.cantidad_pzas},{items.precio_venta});")
+                mi_cursor.execute(f"INSERT INTO Venta VALUES(?, ?, ?, ?);",(folio, items.descripcion, items.cantidad_pzas, items.precio_venta))
 except Error as e:
     print(e)
 except Exception:
